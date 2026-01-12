@@ -1,8 +1,7 @@
 # Solilok Drive
 
-Application de partage de fichiers auto-hébergée avec interface moderne et configuration simple.
+Application de partage de fichiers auto-hébergée avec interface moderne.
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -14,31 +13,49 @@ Application de partage de fichiers auto-hébergée avec interface moderne et con
 - Thème clair/sombre
 - Multi-utilisateurs avec isolation des fichiers
 - Dashboard admin complet
-- **Assistant de configuration au premier lancement**
+- **Configuration au premier lancement**
 
-## Installation
-
-### Docker Compose
+## Installation (30 secondes)
 
 ```bash
-git clone https://github.com/FlexiFlizz/SolilokDrivePUBLIC.git
-cd SolilokDrivePUBLIC
+# Télécharger le fichier docker-compose
+curl -O https://raw.githubusercontent.com/FlexiFlizz/SolilokDrivePUBLIC/main/docker-compose.yml
+
+# Lancer
 docker compose up -d
 ```
 
-Accédez à `http://localhost:3005/setup` pour la configuration initiale.
+Accédez à `http://localhost:3005/setup` et configurez votre Drive.
 
-### Portainer (Stack Git)
+**C'est tout !**
+
+## Installation alternative (Portainer)
 
 1. **Stacks** > **Add stack**
-2. **Build method**: Repository
-3. **Repository URL**: `https://github.com/FlexiFlizz/SolilokDrivePUBLIC`
-4. **Compose path**: `docker-compose.yml`
-5. Cliquez **Deploy the stack**
+2. Collez ce contenu :
+
+```yaml
+services:
+  solilok-drive:
+    image: ghcr.io/flexiflizz/solilokdrivepublic:latest
+    container_name: solilok-drive
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    volumes:
+      - solilok-data:/app/data
+      - solilok-uploads:/app/uploads
+
+volumes:
+  solilok-data:
+  solilok-uploads:
+```
+
+3. **Deploy the stack**
 
 ## Configuration initiale
 
-Au premier lancement, l'assistant demande :
+Au premier lancement, configurez :
 
 | Paramètre | Description |
 |-----------|-------------|
@@ -47,28 +64,26 @@ Au premier lancement, l'assistant demande :
 | Utilisateur admin | Nom d'utilisateur |
 | Mot de passe admin | Min. 4 caractères |
 
-## docker-compose.yml
+## Changer le port
 
+Modifiez `3005:3000` dans le docker-compose :
 ```yaml
-services:
-  solilok-drive:
-    build: .
-    ports:
-      - "3005:3000"  # Changez 3005 si besoin
-    volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
-    restart: unless-stopped
+ports:
+  - "8080:3000"  # Accessible sur le port 8080
 ```
 
-## Sauvegarde / Mise à jour
+## Mise à jour
 
 ```bash
-# Sauvegarde
-cp -r data/ backup/ && cp -r uploads/ backup/
+docker compose pull
+docker compose up -d
+```
 
-# Mise à jour
-git pull && docker compose up -d --build
+## Sauvegarde
+
+```bash
+# Les données sont dans des volumes Docker
+docker run --rm -v solilok-data:/data -v $(pwd):/backup alpine tar czf /backup/solilok-backup.tar.gz /data
 ```
 
 ## Licence

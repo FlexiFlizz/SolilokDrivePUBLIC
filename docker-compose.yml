@@ -1,13 +1,17 @@
 services:
-  doctor-drive:
-    build: .
-    container_name: doctor-drive
+  solilok-drive:
+    image: ghcr.io/flexiflizz/solilokdrivepublic:latest
+    container_name: solilok-drive
     restart: unless-stopped
     ports:
       - "3005:3000"
     volumes:
-      - ./uploads:/app/uploads
-      - ./data:/app/data
+      - solilok-data:/app/data
+      - solilok-uploads:/app/uploads
     environment:
       - NODE_ENV=production
-      - DB_PATH=/app/data/doctor-drive.db
+      - DB_PATH=/app/data/solilok-drive.db
+
+volumes:
+  solilok-data:
+  solilok-uploads:
