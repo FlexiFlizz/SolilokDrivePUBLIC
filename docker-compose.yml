@@ -1,6 +1,6 @@
 services:
   solilok-drive:
-    image: ghcr.io/flexiflizz/solilokdrivepublic:latest
+    build: .
     container_name: solilok-drive
     restart: unless-stopped
     ports:
