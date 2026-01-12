@@ -41,7 +41,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Create uploads and data directories
 RUN mkdir -p /app/uploads /app/data && chown -R nextjs:nodejs /app/uploads /app/data
 
-USER nextjs
+# Copy entrypoint
+COPY --chmod=755 entrypoint.sh /app/entrypoint.sh
 
 EXPOSE 3000
 
@@ -49,4 +50,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DB_PATH="/app/data/doctor-drive.db"
 
-CMD ["node", "server.js"]
+# Run as root to handle volume permissions, then exec as node
+CMD ["/app/entrypoint.sh"]
