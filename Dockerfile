@@ -18,37 +18,31 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
-# Production image, copy all the files and run next
-FROM base AS runner
+# Production image
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache libc6-compat
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# Install better-sqlite3 dependencies and rebuild
+RUN apt-get update && apt-get install -y python3 make g++ && \
+    npm install better-sqlite3 --build-from-source && \
+    apt-get remove -y python3 make g++ && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Create uploads and data directories
-RUN mkdir -p /app/uploads /app/data && chown -R nextjs:nodejs /app/uploads /app/data
-
-# Copy entrypoint
-COPY --chmod=755 entrypoint.sh /app/entrypoint.sh
+# Create directories
+RUN mkdir -p /app/uploads /app/data
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV DB_PATH="/app/data/doctor-drive.db"
+ENV DB_PATH="/app/data/solilok-drive.db"
 
-# Run as root to handle volume permissions, then exec as node
-CMD ["/app/entrypoint.sh"]
+CMD ["node", "server.js"]
