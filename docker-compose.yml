@@ -1,0 +1,13 @@
+services:
+  doctor-drive:
+    build: .
+    container_name: doctor-drive
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/doctor-drive.db
