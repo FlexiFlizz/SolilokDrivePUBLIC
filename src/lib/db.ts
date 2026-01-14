@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import crypto from "crypto";
 
-const DB_PATH = process.env.DB_PATH || "/app/data/doctor-drive.db";
+const DB_PATH = process.env.DB_PATH || "/app/data/solilok-drive.db";
 const SESSION_DURATION = 15 * 60 * 1000; // 15 minutes
 
 let db: Database.Database | null = null;
